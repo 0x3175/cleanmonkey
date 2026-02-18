@@ -1,5 +1,5 @@
-# douban
+# douban.ext
 
-The PLAY button for douban.
+The extension for douban.
 
 ![screenshot](screenshot.png)
