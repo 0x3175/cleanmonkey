@@ -1,0 +1,1 @@
+cleanmonkey does not collect, store, or transmit any personal information or browsing data to any external servers. All userscripts created within the extension are stored locally on the user's machine using Chrome's storage API. We do not track user activity or sell any information to third parties.
