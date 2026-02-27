@@ -4,10 +4,10 @@
   "description": "Run custom scripts on any website.",
   "manifest_version": 3,
   "icons": {
-    "128": "icon_128.png"
+    "128": "icon.svg"
   },
   "action": {
-    "default_icon": "icon_128.png"
+    "default_icon": "icon.svg"
   },
   "background": {
     "service_worker": "background.js"
