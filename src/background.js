@@ -1,11 +1,11 @@
 // Default script seeded on first install
 const DEFAULT_SCRIPTS = [
-    {
-        id: 'douban-enhancer',
-        name: 'Douban Enhancer',
-        matches: '*://*.douban.com/subject/*',
-        enabled: true,
-        code: `
+  {
+    id: 'douban-enhancer',
+    name: 'Douban Enhancer',
+    matches: '*://*.douban.com/subject/*',
+    enabled: true,
+    code: `
 function makeAnchor() {
   const anchor = document.createElement('a');
   anchor.innerHTML = '&#9658;';
@@ -70,59 +70,64 @@ if (window.location.host === 'movie.douban.com') {
   addCopyBookHotkey();
 }
 `.trim()
-    }
+  }
 ];
 
 // Seed default scripts on first install
 chrome.runtime.onInstalled.addListener((details) => {
-    if (details.reason === 'install') {
-        chrome.storage.local.set({ scripts: DEFAULT_SCRIPTS });
-    }
+  if (details.reason === 'install') {
+    chrome.storage.local.set({ scripts: DEFAULT_SCRIPTS });
+  }
+});
+
+// Open app page when extension icon is clicked
+chrome.action.onClicked.addListener(() => {
+  chrome.tabs.create({ url: 'app.html' });
 });
 
 // Convert a match pattern like *://*.douban.com/subject/* to a regex
 function matchPatternToRegex(pattern) {
-    // Escape regex special chars, then convert * to .*
-    let regex = pattern
-        .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-        .replace(/\*/g, '.*');
-    return new RegExp('^' + regex + '$');
+  // Escape regex special chars, then convert * to .*
+  let regex = pattern
+    .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '.*');
+  return new RegExp('^' + regex + '$');
 }
 
 // Check if a URL matches a pattern string (supports multiple patterns separated by newlines)
 function urlMatches(url, patternStr) {
-    const patterns = patternStr.split('\n').map(p => p.trim()).filter(Boolean);
-    return patterns.some(pattern => {
-        try {
-            return matchPatternToRegex(pattern).test(url);
-        } catch {
-            return false;
-        }
-    });
+  const patterns = patternStr.split('\n').map(p => p.trim()).filter(Boolean);
+  return patterns.some(pattern => {
+    try {
+      return matchPatternToRegex(pattern).test(url);
+    } catch {
+      return false;
+    }
+  });
 }
 
 // Inject matching scripts when a page finishes loading
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status !== 'complete' || !tab.url) return;
+  if (changeInfo.status !== 'complete' || !tab.url) return;
 
-    // Skip chrome:// and extension pages
-    if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) return;
+  // Skip chrome:// and extension pages
+  if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) return;
 
-    chrome.storage.local.get('scripts', (data) => {
-        const scripts = data.scripts || [];
-        for (const script of scripts) {
-            if (!script.enabled) continue;
-            if (urlMatches(tab.url, script.matches)) {
-                chrome.scripting.executeScript({
-                    target: { tabId },
-                    func: (code) => {
-                        const fn = new Function(code);
-                        fn();
-                    },
-                    args: [script.code],
-                    world: 'MAIN'
-                }).catch(err => console.warn(`Script "${script.name}" failed:`, err));
-            }
-        }
-    });
+  chrome.storage.local.get('scripts', (data) => {
+    const scripts = data.scripts || [];
+    for (const script of scripts) {
+      if (!script.enabled) continue;
+      if (urlMatches(tab.url, script.matches)) {
+        chrome.scripting.executeScript({
+          target: { tabId },
+          func: (code) => {
+            const fn = new Function(code);
+            fn();
+          },
+          args: [script.code],
+          world: 'MAIN'
+        }).catch(err => console.warn(`Script "${script.name}" failed:`, err));
+      }
+    }
+  });
 });

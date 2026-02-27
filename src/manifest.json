@@ -7,7 +7,6 @@
     "128": "icon_128.png"
   },
   "action": {
-    "default_popup": "popup.html",
     "default_icon": "icon_128.png"
   },
   "background": {

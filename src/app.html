@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Cleanmonkey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f0;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d8a4e;
+        }
+
+        #add-btn {
+            width: 32px;
+            height: 32px;
+            border: 1.5px solid #2d8a4e;
+            border-radius: 8px;
+            background: #fff;
+            color: #2d8a4e;
+            font-size: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        #add-btn:hover {
+            background: #2d8a4e;
+            color: #fff;
+        }
+
+        /* Script list */
+        .script-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid #e8e8e4;
+            transition: border-color 0.15s;
+        }
+
+        .script-item:hover {
+            border-color: #c8d8cc;
+        }
+
+        .script-item.active {
+            border-color: #2d8a4e;
+        }
+
+        .script-info {
+            flex: 1;
+            min-width: 0;
+            cursor: pointer;
+        }
+
+        .script-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .script-match {
+            font-size: 11px;
+            color: #999;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .toggle {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle .slider {
+            position: absolute;
+            inset: 0;
+            background: #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle .slider::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 2px;
+            bottom: 2px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle input:checked+.slider {
+            background: #2d8a4e;
+        }
+
+        .toggle input:checked+.slider::before {
+            transform: translateX(16px);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 2px;
+            line-height: 1;
+            flex-shrink: 0;
+            transition: color 0.15s;
+        }
+
+        .delete-btn:hover {
+            color: #e55;
+        }
+
+        #empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #aaa;
+            font-size: 13px;
+            display: none;
+        }
+
+        #empty-state.visible {
+            display: block;
+        }
+
+        /* Editor */
+        .editor {
+            display: none;
+            background: #fff;
+            border: 1px solid #e8e8e4;
+            border-radius: 14px;
+            padding: 24px;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .editor.visible {
+            display: flex;
+        }
+
+        .editor-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .editor-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2d8a4e;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888;
+        }
+
+        .hint {
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+            color: #aaa;
+        }
+
+        input[type="text"] {
+            padding: 10px 12px;
+            border: 1px solid #e0e0dc;
+            border-radius: 8px;
+            background: #fff;
+            color: #333;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #2d8a4e;
+        }
+
+        input[type="text"]::placeholder {
+            color: #bbb;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 360px;
+            padding: 14px;
+            border: 1px solid #e0e0dc;
+            border-radius: 8px;
+            background: #fafaf8;
+            color: #333;
+            font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            tab-size: 2;
+            transition: border-color 0.15s;
+        }
+
+        textarea:focus {
+            border-color: #2d8a4e;
+        }
+
+        textarea::placeholder {
+            color: #bbb;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-primary {
+            background: #2d8a4e;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #247040;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #888;
+            border: 1px solid #e0e0dc;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5f0;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Cleanmonkey</h1>
+            <button id="add-btn" title="Add Script">+</button>
+        </div>
+        <div id="script-list"></div>
+        <div id="empty-state">No scripts yet. Click + to add one.</div>
+        <div class="editor" id="editor">
+            <div class="editor-header">
+                <h2 id="editor-title">New Script</h2>
+            </div>
+            <div class="field">
+                <label for="name">Name</label>
+                <input type="text" id="name" placeholder="My Script" autocomplete="off">
+            </div>
+            <div class="field">
+                <label for="matches">Match Patterns <span class="hint">(one per line, use * as wildcard)</span></label>
+                <input type="text" id="matches" placeholder="*://*.example.com/*" autocomplete="off">
+            </div>
+            <div class="field">
+                <label for="code">Code</label>
+                <textarea id="code" placeholder="// Your JavaScript here..." spellcheck="false"></textarea>
+            </div>
+            <div class="actions">
+                <button id="save-btn" class="btn-primary">Save</button>
+                <button id="cancel-btn" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
