@@ -1,5 +1,5 @@
-# douban.ext
+# CleanMonkey
 
-The extension for douban.
+The extension for running custom scripts on any website.
 
 ![screenshot](screenshot.png)

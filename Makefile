@@ -1,7 +1,7 @@
 c:
-	rm -f douban-chrome.zip
-	zip douban-chrome.zip src/*
+	rm -f cm-chrome.zip
+	zip cm-chrome.zip src/*
 
 f:
-	rm -f douban-firefox.zip
-	cd src; zip douban-firefox.zip ./*; mv douban-firefox.zip ..
+	rm -f cm-firefox.zip
+	cd src; zip cm-firefox.zip ./*; mv cm-firefox.zip ..
